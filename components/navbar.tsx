@@ -54,7 +54,7 @@ export default function Navbar({ user }) {
               <li><Link href="/generate" className="text-lg">Generate</Link></li>
               <li><Link href="/plan" className="text-lg">Plan</Link></li>
               <li><Link href="/saved" className="text-lg">Saved</Link></li>
-              <li><Link href="/course" className="text-lg">Study</Link></li>
+              <li><Link href="/course" className="text-lg">Course</Link></li>
               <li><Link href="/explore" className="text-lg">Explore</Link></li>
             </ul>
           )}
@@ -104,7 +104,7 @@ export default function Navbar({ user }) {
               href="/course"
               className={`mx-2 px-5 py-2 rounded-full text-lg ${pathname === "/course" ? "active-link" : "hover:bg-gray-700"}`}
             >
-              Study
+              Course
             </Link>
           </li>
           <li>
