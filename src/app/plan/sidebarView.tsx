@@ -35,7 +35,7 @@ const Details = ({ userId }: { userId: string }) => {
   const [timetableName, setTimetableName] = useState("");
   const [savedTimetables, setSavedTimetables] = useState([]);
   const [selectedTimetableId, setSelectedTimetableId] = useState("");
-  
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
 
   const handleSearch = async (forceNew: string = "true") => {  /*
   Description:
@@ -322,6 +322,20 @@ useEffect(() => {
 
 
 
+const handleButtonClick = (action) => {
+  if (!userId) {
+    setShowLoginPopup(true);
+    setTimeout(() => setShowLoginPopup(false), 3000); // Hides the popup after 3 seconds
+  } else {
+    if (action === "save") {
+      setSaveTimetableDialogOpen(true);
+    } else if (action === "import") {
+      setImportTimetableDialogOpen(true);
+    }
+  }
+};
+
+
   
   // Group courses by unit and activity
   const sidebarData = groupActivitiesByUnit(courseList);
@@ -492,20 +506,27 @@ useEffect(() => {
       </div>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       
-      <div className="flex mt-4 mb-8 inline-block space-x-4">        
-        <button
-          onClick={() => setSaveTimetableDialogOpen(true)}
-          className="px-4 py-2 bg-blue-1300 hover:bg-blue-1100 text-white rounded-full"
-        >
-          Save Timetable
-        </button>
-        <button
-          onClick={() => setImportTimetableDialogOpen(true)}
-          className="px-4 py-2 bg-blue-1300 hover:bg-blue-1100 text-white rounded-full"
-        >
-          Import Timetable
-        </button>
-      </div>
+        <div className="flex mt-4 mb-8 inline-block space-x-4">
+          <button
+            onClick={() => handleButtonClick("save")}
+            className="px-4 py-2 bg-blue-1300 hover:bg-blue-1100 text-white rounded-full"
+          >
+            Save Timetable
+          </button>
+          <button
+            onClick={() => handleButtonClick("import")}
+            className="px-4 py-2 bg-blue-1300 hover:bg-blue-1100 text-white rounded-full"
+          >
+            Import Timetable
+          </button>
+
+          {/* Popup message */}
+          {showLoginPopup && (
+            <div className="absolute top-52 bg-red-400 text-white px-4 py-2 rounded shadow-lg">
+              Please <a href="/login" className="underline text-white">login</a> to continue.
+            </div>
+          )}
+        </div>
 
         <div>
           {Object.keys(sidebarData)
