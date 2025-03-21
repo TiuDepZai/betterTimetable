@@ -578,20 +578,34 @@ const handleButtonClick = (action) => {
                             selectedCourses[unit][activity].id === course.id;
                           return (
                             <li
-                              key={course.id}
-                              onClick={() => {
-                                setSelectedCourses((prev) => ({
+                            key={course.id}
+                            onClick={() => {
+                              setSelectedCourses((prev) => {
+                                // Check if the current course is already selected
+                                if (prev[unit]?.[activity]?.id === course.id) {
+                                  // If yes, remove the selection by deleting this activity from the unit.
+                                  const newUnit = { ...prev[unit] };
+                                  delete newUnit[activity];
+                                  return { ...prev, [unit]: newUnit };
+                                }
+                                // Otherwise, add this course to the selection.
+                                return {
                                   ...prev,
                                   [unit]: {
                                     ...prev[unit],
                                     [activity]: course,
                                   },
-                                }));
-                              }}
-                              className={`px-4 py-2 cursor-pointer ${isSelected ? "bg-gray-300" : ""}`}
-                            >
-                              {course.day} {course.time}
-                            </li>
+                                };
+                              });
+                            }}
+                            className={`px-4 py-2 cursor-pointer ${selectedCourses[unit] &&
+                              selectedCourses[unit][activity] &&
+                              selectedCourses[unit][activity].id === course.id
+                                ? "bg-gray-300"
+                                : ""}`}
+                          >
+                            {course.day} {course.time}
+                          </li>                          
                           );
                         })}
                       </ul>
