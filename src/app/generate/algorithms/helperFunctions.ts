@@ -9,86 +9,89 @@ import { Course, CourseList, CourseTimes, FilteredCourseList } from "./interface
 ///                       will remove all timeslots outside of available times
 ///
 /// ----------------------------------------------------------------------------------------------------- ///
-
 export function filterByAvailability(
   courseList: CourseList,
   studyTimes: { [key: string]: string[] }
 ): FilteredCourseList | null {
-  ///
-  /// Function to filter courses based on the user's available times.
-  ///
-  /// Inputs:
-  ///   - courseList: The list of courses to filter.
-  ///   - studyTimes: A dictionary mapping days to the user's available times.
-  /// Outputs:
-  ///   - FilteredCourseList: The filtered list of courses based on the user's availability.
-  ///   - If any unit has no timeslots left after filtering, returns null.
-  ///
-  
   const filteredCourseList: FilteredCourseList = {};
-  
-  // Iterate over each unit in the courseList
+
+  // Process each unit in the course list.
   for (const unitCode in courseList) {
     const unit = courseList[unitCode];
-    const filteredCourses: Course[] = [];
-  
-    console.log("HERE IS THE ACTUAL UNIT CODE!!!!", unit);
+    console.log("Processing unit:", unit);
 
-    // Iterate over each course in the unit
+    // 1. Collect every distinct activity type from the original courses.
+    const originalActivities: string[] = [];
     for (const course of unit.courses) {
-      const courseDayAbbr = course.day; // e.g., 'TUE'
-      const fullDayName = dayMap[courseDayAbbr];
-  
-      if (!fullDayName) {
-        console.warn(`Unrecognized day abbreviation: ${courseDayAbbr}`);
-        continue; // Skip this course or handle appropriately
+      if (!originalActivities.includes(course.activity)) {
+        originalActivities.push(course.activity);
       }
-  
-      // Get the user's available times for the course day
-      const availableTimes = studyTimes[fullDayName];
-  
-      if (!availableTimes || availableTimes.length === 0) {
-        // No availability on this day; exclude the course
+    }
+
+    // 2. Filter courses by availability and group into their activity.
+    const coursesByActivity: { [activity: string]: Course[] } = {};
+
+    for (const course of unit.courses) {
+      // Convert day abbreviation to full day name (e.g. TUE -> Tuesday)
+      const fullDayName = dayMap[course.day];
+      if (!fullDayName) {
+        console.warn(`Unrecognized day abbreviation: ${course.day}`);
         continue;
       }
-  
-      // Parse the course's start and end times into minutes
-      const { start: courseStart, end: courseEnd } = parseCourseTimeRangeInMinutes(course.time);
-  
-      // Generate all 30-minute increments between courseStart and courseEnd
-      const courseTimes = generateCourseTimeSlots(courseStart, courseEnd);
-  
-      // Check if all of these times are within the user's available times
-      const isWithinAvailability = courseTimes.every((timeStr) => availableTimes.includes(timeStr));
-      console.log(
-        "Course Times:", courseTimes,
-        "\nAvailable Times:", availableTimes,
-        "\nIs the course time within availability?", isWithinAvailability
-      );
 
-      if (isWithinAvailability) {
-        // All times are within availability; include the course
-        filteredCourses.push(course);
+      // Get available timeslots for that day.
+      const availableSlots = studyTimes[fullDayName] || [];
+      if (availableSlots.length === 0) {
+        continue;
       }
-      // Else, do not include the course
+
+      // Parse the course's time range and generate its 30-minute time slots.
+      const { start, end } = parseCourseTimeRangeInMinutes(course.time);
+      const courseSlots = generateCourseTimeSlots(start, end);
+
+      // Include the course if every generated timeslot exists within the available times.
+      const slotsOk = courseSlots.every(slot => availableSlots.includes(slot));
+      if (slotsOk) {
+        if (!coursesByActivity[course.activity]) {
+          coursesByActivity[course.activity] = [];
+        }
+        coursesByActivity[course.activity].push(course);
+      }
     }
-  
-    // If any activity has no timeslots left, return null
-    if (filteredCourses.length === 0) {
-      return null;
-    } else {
-      // Include the unit with its filtered courses
-      filteredCourseList[unitCode] = {
-        unitName: unit.unitName,
-        courses: filteredCourses,
-      };
+
+    // 3. For any activity missing a physical timeslot, try to find a virtual alternative.
+    for (const activity of originalActivities) {
+      if (!coursesByActivity[activity] || coursesByActivity[activity].length === 0) {
+        // Look for a virtual course for this activity.
+        const virtualCourses = unit.courses.filter(course =>
+          course.activity === activity &&
+          (course.room.startsWith("GP VIRTOLT") || course.room.startsWith("KG VIRTOLT"))
+        );
+        if (virtualCourses.length > 0) {
+          coursesByActivity[activity] = virtualCourses;
+        } else {
+          // If no timeslot or fallback is available for this activity, return null.
+          return null;
+        }
+      }
     }
+
+    // 4. Flatten all courses (timeslots) from all activity groups into one array.
+    const flattenedTimeslots: Course[] = [];
+    for (const activity in coursesByActivity) {
+      flattenedTimeslots.push(...coursesByActivity[activity]);
+    }
+
+    // 5. Populate the filtered course list with the unit's unitName and consolidated courses.
+    filteredCourseList[unitCode] = {
+      unitName: unit.unitName,
+      courses: flattenedTimeslots, // Courses now represent distinct timeslots.
+    };
   }
-  
-  // Return the filtered course list
+
+  // Return the complete filtered course list structured per unit.
   return filteredCourseList;
 }
-
 
 
 
