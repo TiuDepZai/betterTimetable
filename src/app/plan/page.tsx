@@ -1,4 +1,3 @@
-import React from 'react';
 import Details from './sidebarView'; // Adjust import path accordingly
 import { validateSession } from "../../auth/sessionManager";
 

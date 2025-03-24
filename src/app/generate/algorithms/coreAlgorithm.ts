@@ -55,7 +55,8 @@ import { CourseList, CourseTimes, FilteredCourseList, UnitDomain } from "./inter
     /// Output:
     ///   filteredCourseList - A mapping similar to courseList but containing only the selected timeslots.
     ///
-    
+    console.log("User courseList courseList:", courseList);
+
     console.log("User available times:", availableTimes);
   
     // STAGE 1 --- APPLY AVAILABILITY FILTER
