@@ -67,6 +67,7 @@ Please join our Discord Server at: [betterTimetable Discord](https://discord.gg/
 >
 > - Please note: You will need to restart VS Code after installing for it to take effect
 
+
    
 <br><br>
 
@@ -82,6 +83,14 @@ git clone https://github.com/codenetwork/betterTimetable.git
 ```
 
 3. Open the project in VS Code
+
+> [!IMPORTANT]
+> If there is a no run scripts issue, then run Windows Powershell as an administrator and type:
+> ```bash
+> Set-ExecutionPolicy Bypass
+> ```
+
+
 4. Install necessary dependencies
 
 ```bash
