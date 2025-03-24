@@ -29,7 +29,7 @@ const Details = ({ userId }: { userId: string }) => {
   const [unitColors, setUnitColors] = useState({});
   const [dropdownShow, setDropdownShow] = useState({});
 
-  // New state variables for timetable actions
+  // State variables for save and import buttons
   const [saveTimetableDialogOpen, setSaveTimetableDialogOpen] = useState(false);
   const [importTimetableDialogOpen, setImportTimetableDialogOpen] = useState(false);
   const [timetableName, setTimetableName] = useState("");
@@ -511,13 +511,13 @@ const handleButtonClick = (action) => {
             onClick={() => handleButtonClick("save")}
             className="px-4 py-2 bg-blue-1300 hover:bg-blue-1100 text-white rounded-full"
           >
-            Save Timetable
+            Save
           </button>
           <button
             onClick={() => handleButtonClick("import")}
             className="px-4 py-2 bg-blue-1300 hover:bg-blue-1100 text-white rounded-full"
           >
-            Import Timetable
+            Import
           </button>
 
           {/* Popup message */}
