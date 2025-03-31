@@ -618,7 +618,7 @@ const handleButtonClick = (action) => {
         </div>
       </section>
 
-      <section className="w-full md:w-3/4 pr-6 pb-6">
+      <section className="w-full md:w-3/4">
         <TimetableView
           courseList={selectedCourseList}
           unitColors={unitColors}

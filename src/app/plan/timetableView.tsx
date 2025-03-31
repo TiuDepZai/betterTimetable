@@ -92,7 +92,7 @@ const Timetable: React.FC<TimetableProps> = ({ courses, unitColors }) => {
   return (
     <div className="w-full overflow-x-auto">
       {/* Header row with day names */}
-      <div className="mt-6 grid grid-cols-[1fr_2fr_2fr_2fr_2fr_2fr] gap-2 text-white bg-blue-1400 p-4">
+      <div className="grid grid-cols-[1fr_2fr_2fr_2fr_2fr_2fr] gap-2 text-white bg-blue-1400 p-4">
         <div></div>
         {daysOfWeek.map((day) => (
           <div key={day} className="text-center font-bold">
@@ -102,7 +102,7 @@ const Timetable: React.FC<TimetableProps> = ({ courses, unitColors }) => {
       </div>
 
       {/* Timetable grid */}
-      <div className="grid grid-cols-[1fr_2fr_2fr_2fr_2fr_2fr] gap-2 relative bg-white">
+      <div className="grid grid-cols-[1fr_2fr_2fr_2fr_2fr_2fr] relative bg-white">
         {/* Time Column */}
         <div className="flex flex-col text-white relative">
           {timeSlots.map((time) => (
