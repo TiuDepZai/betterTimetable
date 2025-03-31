@@ -121,7 +121,7 @@ const Timetable: React.FC<TimetableProps> = ({ courses, unitColors }) => {
 
         {/* Columns for each day */}
         {daysOfWeek.map((day) => (
-          <div key={day} className="relative border-l border-gray-300 overflow-visible">
+          <div key={day} className="relative border-l border-gray-300 overflow-visible pr-2">
             {timeSlots.map((time) => (
               <div key={time} className="relative h-6 border-b border-blue-1400">
                 {timetable[day][time]?.map((course, index, arr) => {
