@@ -92,7 +92,7 @@ const Timetable: React.FC<TimetableProps> = ({ courses, unitColors }) => {
   return (
     <div className="w-full overflow-x-auto">
       {/* Header row with day names */}
-      <div className="mt-6 grid grid-cols-[1fr_2fr_2fr_2fr_2fr_2fr] gap-2 text-white bg-blue-1400 p-4">
+      <div className="grid grid-cols-[1fr_2fr_2fr_2fr_2fr_2fr] gap-2 text-white bg-blue-1400 p-4">
         <div></div>
         {daysOfWeek.map((day) => (
           <div key={day} className="text-center font-bold">
@@ -102,7 +102,7 @@ const Timetable: React.FC<TimetableProps> = ({ courses, unitColors }) => {
       </div>
 
       {/* Timetable grid */}
-      <div className="grid grid-cols-[1fr_2fr_2fr_2fr_2fr_2fr] gap-2 relative bg-white">
+      <div className="grid grid-cols-[1fr_2fr_2fr_2fr_2fr_2fr] relative bg-white">
         {/* Time Column */}
         <div className="flex flex-col text-white relative">
           {timeSlots.map((time) => (
@@ -121,7 +121,7 @@ const Timetable: React.FC<TimetableProps> = ({ courses, unitColors }) => {
 
         {/* Columns for each day */}
         {daysOfWeek.map((day) => (
-          <div key={day} className="relative border-l border-gray-300 overflow-visible">
+          <div key={day} className="relative border-l border-gray-300 overflow-visible pr-2">
             {timeSlots.map((time) => (
               <div key={time} className="relative h-6 border-b border-blue-1400">
                 {timetable[day][time]?.map((course, index, arr) => {
