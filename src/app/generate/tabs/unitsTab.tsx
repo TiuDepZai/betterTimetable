@@ -6,6 +6,7 @@ import checkUnit from "../download_data/checkUnits";
 import uploadUnit from "../download_data/uploadUnit";
 import downloadUnit from "../download_data/downloadUnits";
 import { timeslots } from "@/db/schema";
+import { Console } from "console";
 
 // Define the structure for an individual course
 interface Course {
@@ -101,37 +102,59 @@ const Units: React.FC<UnitsProps> = ({
     try {
       // Check if the unit exists in the database
       const dbResponse = await checkUnit(formattedUnitCode);
-      // if (dbResponse.exists) {
+
+      if (dbResponse.exists) {
         
         // Fetch course data from database
-        // const courseResponse = await downloadUnit(formattedUnitCode);
+        const courseResponse = await downloadUnit(formattedUnitCode);
 
-        // if(courseResponse.success) {
-        //   const unitData = {
-        //     unitName: courseResponse.unitName,
-        //     courses: courseResponse.courseData,
-        //   };
+        if(!courseResponse.success) {
+          setError("Failed to fetch course data from the database.");
+          return;
+        }
+
+        // const courseData = {
+        //   unitName: courseResponse.unitName,
+        //   courses: courseResponse.courseData,
+        // };
           
-        //   if (unitData.unitName && unitData.courses) {
-        //     setCourseList((prevCourses) => ({
-        //       ...prevCourses,
-        //       [formattedUnitCode]: unitData as CourseData,
-        //     }));
-        //   } else {
-        //     setError("Invalid unit data received.");
-        //   }
-        // }
+        // Ensure courses are properly typed
+        const courseData: CourseData = {
+          unitName: courseResponse.unitName || "", // Default to an empty string if unitName is null or undefined
+          courses: (courseResponse.courseData || []).map((course) => ({
+            id: course.id,
+            unitCode: formattedUnitCode, // Add unitCode if missing
+            unitName: courseResponse.unitName || "",
+            classType: course.type || "", // Default to an empty string if null
+            activity: course.activity || "", // Default to an empty string if null
+            day: course.day || "", // Default to an empty string if null
+            time: course.classTime, // This field is required, so no default needed
+            room: course.room || "", // Default to an empty string if null
+            teachingStaff: course.teachingStaff || "", // Default to an empty string if null
+          })),
+        };
+
+        setCourseList((prevCourses) => ({
+          ...prevCourses,
+          [formattedUnitCode]: courseData as CourseData,
+        }));
         
-      //   setShowDialog(false);         // Close the dialog
-      //   setUnitCode("");              // Reset unit code input
-      //   setSelectedPeriod("");        // Reset selected period
-      // } 
-      // else {
-      console.log(selectedPeriod);
+        console.log("[SQL DB] Course data loaded from SQL database:", courseData.courses)
+        setCourseList((prevCourses) => ({
+          ...prevCourses,
+          [formattedUnitCode]: courseData as CourseData,
+        }));
+        
+        
+        setShowDialog(false);         // Close the dialog
+        setUnitCode("");              // Reset unit code input
+        setSelectedPeriod("");        // Reset selected period
+      } 
+      else {
         const response = await fetch(
           `/api/course-data?unitCode=${formattedUnitCode}&teachingPeriod=${selectedPeriod}`
         );
-        
+          
         const data = await response.json();
         const unitData = data[formattedUnitCode];                // Extract unit data
 
@@ -149,11 +172,14 @@ const Units: React.FC<UnitsProps> = ({
         setShowDialog(false);         // Close the dialog
         setUnitCode("");              // Reset unit code input
         setSelectedPeriod("");        // Reset selected period
-      // }
+        console.log("[WEB API] Course data loaded from web API:", unitData.courses)
+      }
     } catch {
       setError("Failed to add the unit.");                     // Set error if fetch fails
+      console.error(error);
     }
-  } else {
+  } 
+  else {
     setError("Please select a valid teaching period.");       // Prompt user to select a period
   }
 };

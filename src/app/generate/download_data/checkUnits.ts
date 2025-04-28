@@ -1,7 +1,7 @@
 "use server";
 
 import { drizzle } from "drizzle-orm/mysql2";
-import { units } from "../../../db/schema";
+import { units, teachingPeriods, timeslots } from "../../../db/schema";
 import { eq, sql } from "drizzle-orm";
 
 export default async function checkUnits(unitCode: string, unitName?: string) {
@@ -19,7 +19,21 @@ export default async function checkUnits(unitCode: string, unitName?: string) {
         const existingUnit = existingUnitQuery[0];
 
         if (existingUnit) {
-            return { exists: true, unitData: existingUnit };
+            // Fetch all teaching periods for this unit
+            const periodIds = await db
+                .select({ teachingPeriodId: timeslots.teachingPeriodId })
+                .from(timeslots)
+                .where(eq(timeslots.unitId, existingUnit.id));
+            const uniquePeriodIds = [...new Set(periodIds.map(p => p.teachingPeriodId))];
+            let periods: any[] = [];
+            if (uniquePeriodIds.length > 0) {
+                periods = await db
+                    .select()
+                    .from(teachingPeriods)
+                    .where(sql`${teachingPeriods.id} IN (${uniquePeriodIds.map(id => `'${id}'`).join(",")})`)
+                    .execute();
+            }
+            return { exists: true, unitData: existingUnit, teachingPeriods: periods };
         }
         else {
             return { exists: false };
