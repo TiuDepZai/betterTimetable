@@ -15,13 +15,7 @@ export async function GET(request: { url: string | URL; }) {
     const qut_data = `https://qutvirtual3.qut.edu.au/qvpublic/ttab_unit_search_p.process_teach_period_search?p_unit_cd=${unitCode}`;
     const { data } = await axios.get(qut_data);
     const $ = cheerio.load(data);
-    
-    // Extract the unit name
-    const unitName = $("select").eq(0).text().trim();
-    if (!unitName) {
-      // If unit name is not found, return an empty response instead of null
-      return NextResponse.json({});
-    }
+  
 
     const teachingPeriods = $("select option")
     .map((_, element) => {
@@ -33,7 +27,6 @@ export async function GET(request: { url: string | URL; }) {
 
     const response = {
     unitCode: unitCode,
-    unitName: unitName,
     teachingPeriods: teachingPeriods,
     };
 
